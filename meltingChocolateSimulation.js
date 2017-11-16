@@ -5,7 +5,8 @@ var arrTop = [];
 var arrBot = [];
 var submission = [];
 var click1 = false;
-var selection1, selection2;
+var selection1 = null;
+var selection2 = null;
 var startButtonBool = false;
 var resetButtonBool = false;
 var drawArrow2Bool = false;
@@ -24,6 +25,16 @@ var glassText2 = null;
 var wood2 = null;
 var woodText2 = null;
 
+var selectMaterialWidth = 150;
+var selectMaterialHeight = 18;
+
+var animationMaterialWidth = 300;
+var animationMaterialHeight = 40;
+var animationMaterialX = 80;
+var animationMaterial1Y = 30;
+
+var selectBarSecondYSpacing = 200;
+
 function init() {
   draw = SVG('board');
   arr = [];
@@ -31,73 +42,80 @@ function init() {
   arrBot = [];
   submission = [];
   click1 = false;
-  selection1, selection2;
   startButtonBool = false;
   resetButtonBool = false;
   drawArrow2Bool = false;
   set = draw.set();
 
+  selectBarX = 180;
+  selectBarY = 80;
+  selectBarYSpacing = 30;
+
+  textXSpacing = 20;
+
+
   <!-- ----------------GROUP 1-------------------- -->
-  metal = draw.image('./img/metal.png', 200, 17).attr({
-    'x': 130,
-    'y': 170
+  metal = draw.image('./img/metal.png', selectMaterialWidth, selectMaterialHeight).attr({
+    'x': selectBarX,
+    'y': selectBarY
   }).click(function() {
-    select('metal')
+    selectFirstMaterial('metal')
   }).addClass('clickable');
-  metalText = draw.text('Metal').x(340).y(170);
+  //metalText = draw.text('Metal').x(340).y(170);
+  metalText = draw.text('Metal').x(selectBarX + selectMaterialWidth + textXSpacing).y(selectBarY);
 
-  glass = draw.image('./img/glass.png', 200, 18).attr({
-    'x': 130,
-    'y': 210
+  glass = draw.image('./img/glass.png', selectMaterialWidth, selectMaterialHeight).attr({
+    'x': selectBarX,
+    'y': selectBarY + selectBarYSpacing
   }).click(function() {
-    select('glass');
+    selectFirstMaterial('glass');
   }).addClass('clickable');
-  glassText = draw.text('Glass').x(340).y(210);
+  glassText = draw.text('Glass').x(selectBarX + selectMaterialWidth + textXSpacing).y(selectBarY + selectBarYSpacing);
 
-  wood = draw.image('./img/wood.png', 200, 17).attr({
-    'x': 130,
-    'y': 250
+  wood = draw.image('./img/wood.png', selectMaterialWidth, selectMaterialHeight).attr({
+    'x': selectBarX,
+    'y': selectBarY + (selectBarYSpacing * 2)
   }).click(function() {
-    select('wood');
+    selectFirstMaterial('wood');
   }).addClass('clickable');
-  woodText = draw.text('Wood').x(340).y(250);
+  woodText = draw.text('Wood').x(selectBarX + selectMaterialWidth + textXSpacing).y(selectBarY + (selectBarYSpacing * 2));
 
   drawArrow1();
   <!-- ------------------------------------------- -->
 
   <!-- ----------------GROUP 2-------------------- -->
-  metal2 = draw.image('./img/metal.png', 200, 17).attr({
-    'x': 130,
-    'y': 470,
+  metal2 = draw.image('./img/metal.png', selectMaterialWidth, selectMaterialHeight).attr({
+    'x': selectBarX,
+    'y': selectBarY + selectBarSecondYSpacing,
     'bottom': true
   }).click(function() {
-    select2('metal')
+    selectSecondMaterial('metal')
   }).addClass('clickable');
-  metalText2 = draw.text('Metal').x(340).y(470);
+  metalText2 = draw.text('Metal').x(selectBarX + selectMaterialWidth + textXSpacing).y(selectBarY + selectBarSecondYSpacing);
 
-  glass2 = draw.image('./img/glass.png', 200, 18).attr({
-    'x': 130,
-    'y': 510,
+  glass2 = draw.image('./img/glass.png', selectMaterialWidth, selectMaterialHeight).attr({
+    'x': selectBarX,
+    'y': selectBarY + selectBarSecondYSpacing + (selectBarYSpacing * 1),
     'bottom': true
   }).click(function() {
-    select2('glass')
+    selectSecondMaterial('glass')
   }).addClass('clickable');
-  glassText2 = draw.text('Glass').x(340).y(510);
+  glassText2 = draw.text('Glass').x(selectBarX + selectMaterialWidth + textXSpacing).y(selectBarY + selectBarSecondYSpacing + (selectBarYSpacing * 1));
 
-  wood2 = draw.image('./img/wood.png', 200, 17).attr({
-    'x': 130,
-    'y': 550,
+  wood2 = draw.image('./img/wood.png', selectMaterialWidth, selectMaterialHeight).attr({
+    'x': selectBarX,
+    'y': selectBarY + selectBarSecondYSpacing + (selectBarYSpacing * 2),
     'bottom': true
   }).click(function() {
-    select2('wood')
+    selectSecondMaterial('wood')
   }).addClass('clickable');
-  woodText2 = draw.text('Wood').x(340).y(550);
+  woodText2 = draw.text('Wood').x(selectBarX + selectMaterialWidth + textXSpacing).y(selectBarY + selectBarSecondYSpacing + (selectBarYSpacing * 2));
   <!-- ------------------------------------------- -->
 }
 
 
 //selects the type of material and draws it on the screen
-function select(material) {
+function selectFirstMaterial(material) {
   //removes the plank/iron if it has already been drawn
   if (typeof plank !== 'undefined') {
     plank.remove();
@@ -111,17 +129,16 @@ function select(material) {
   arrow.remove()
   arrowText.remove();
   click1 = true;
-  //selection1 = num;
   setSelection1(material);
-  plank = draw.image('./img/' + material + '.png', 400, 35).attr({
-    'x': 130,
-    'y': 90
+  plank = draw.image('./img/' + material + '.png', animationMaterialWidth, animationMaterialHeight).attr({
+    'x': animationMaterialX,
+    'y': animationMaterial1Y
   })
   set.add(plank);
   arr.push(plank);
-  iron = draw.image('./img/iron.png', 100, 100).attr({
-    'x': 10,
-    'y': 50
+  iron = draw.image('./img/iron.png', 50, 50).attr({
+    'x': 15,
+    'y': 30
     });
   drawArrow2()
 }
@@ -156,7 +173,7 @@ function setSelection2(material) {
   submission[1] = num;
 }
 
-function select2(material) {
+function selectSecondMaterial(material) {
   //cannot select bottom material until top material has been selected
   if (click1 === false) {
     return;
@@ -174,15 +191,15 @@ function select2(material) {
   drawStartButton();
   drawResetButton();
   setSelection2(material);
-  plank2 = draw.image('./img/' + material + '.png', 400, 35).attr({
-    'x': 130,
-    'y': 390
+  plank2 = draw.image('./img/' + material + '.png', animationMaterialWidth, animationMaterialHeight).attr({
+    'x': animationMaterialX,
+    'y': animationMaterial1Y + selectBarSecondYSpacing
   })
   set.add(plank2);
   arr.push(plank2);
-  iron2 = draw.image('./img/iron.png', 100, 100).attr({
-  'x': 10,
-  'y': 350
+  iron2 = draw.image('./img/iron.png', 50, 50).attr({
+  'x': 15,
+  'y': selectBarSecondYSpacing + 30
   });
 }
 
@@ -277,13 +294,14 @@ function reset() {
     arr[i].stop();
     arr[i].remove();
   }
+
   drawArrow1();
 }
 
 function drawStartButton() {
   if (startButtonBool === false) {
-    startButtonText = draw.text('Start').x(648).y(278).font({size: 25});
-    startButtonIcon = draw.rect(150,50).x(600).y(270).radius(15).fill('white').stroke({width:2}).opacity(1).attr({
+    startButtonText = draw.text('Start').x(478).y(138).font({size: 25});
+    startButtonIcon = draw.rect(150,50).x(430).y(130).radius(15).fill('white').stroke({width:2}).opacity(1).attr({
       'fill-opacity': 0
     }).addClass('clickable');
     arr.push(startButtonIcon, startButtonText);
@@ -298,8 +316,8 @@ function drawStartButton() {
 
 function drawResetButton() {
   if (resetButtonBool === false) {
-    resetButtonText = draw.text('Reset').x(643).y(378).font({size: 25});
-    resetButtonIcon = draw.rect(150,50).x(600).y(370).radius(15).fill('white').stroke({width:2}).opacity(1).attr({
+    resetButtonText = draw.text('Reset').x(473).y(248).font({size: 25});
+    resetButtonIcon = draw.rect(150,50).x(430).y(240).radius(15).fill('white').stroke({width:2}).opacity(1).attr({
       'fill-opacity': 0
     }).addClass('clickable');
     resetButtonBool = true;
@@ -311,6 +329,14 @@ function drawResetButton() {
 }
 
 function drawArrow1() {
+  arrow = draw.image('./img/arrow.png', 140, 140).attr({
+    'x': 20,
+    'y': 50
+  });
+  arrowText = draw.text('Click on a\nmaterial').font({ size: 16 }).x(35).y(102);
+}
+
+function drawArrow1x() {
   arrow = draw.image('./img/arrow.png', 310, 120).attr({
     'x': 560,
     'y': 50
@@ -324,6 +350,14 @@ function drawArrow1() {
 }
 
 function drawArrow2() {
+  arrow2 = draw.image('./img/arrow.png', 140, 140).attr({
+    'x': 20,
+    'y': 250
+  });
+  arrowText2 = draw.text('Click on a\ndifferent\nmaterial').font({ size: 16 }).x(35).y(292);
+}
+
+function drawArrow2x() {
   if (drawArrow2Bool === false) {
     arrow2 = draw.image('./img/arrow.png', 310, 120).attr({
       'x': 560,
@@ -342,14 +376,16 @@ function drawArrow2() {
 function drawIron() {
   iron.back();
   iron.attr({
-    'x': 50,
-    'y': 50
+    'x': 40,
+    'y': 30
   })
   iron2.back();
   iron2.attr({
-    'x': 50,
-    'y': 350
+    'x': 40,
+    'y': selectBarSecondYSpacing + 30
   })
+  arr.push(iron);
+  arr.push(iron2);
 }
 
 function drawHeat() {
@@ -359,49 +395,56 @@ function drawHeat() {
   }
   var mask = draw.polygon('130,122 130,100 150,90 525,90 525,114 515,122').fill('white');
   var mask2 = draw.polygon('130,422 130,400 150,390 525,390 525,414 515,422').fill('white');
-
+  mask.width(animationMaterialWidth - 2).height(animationMaterialHeight - 17);
+  mask.x(animationMaterialX).y(animationMaterial1Y + 8);
   rect1 = draw.rect(5, 35).attr({
-    'x': 130,
-    'y': 90
+    'x': animationMaterialX,
+    'y': animationMaterial1Y
   }).opacity(.3).fill('red')
   rect1.maskWith(mask);
 
+
+  mask2.width(animationMaterialWidth - 2).height(animationMaterialHeight - 17);
+  mask2.x(animationMaterialX).y(animationMaterial1Y + selectBarSecondYSpacing + 8);
   rect2 = draw.rect(5, 35).attr({
-    'x': 130,
-    'y': 390
+    'x': animationMaterialX,
+    'y': animationMaterial1Y + selectBarSecondYSpacing
   }).opacity(.3).fill('red')
   rect2.maskWith(mask2);
 
+  let chocolateYOffset = 10;
+  let chocolateXOffset = animationMaterialWidth - 100;
+
   chip = draw.image('./img/chip1.png', 128, 50).attr({
-    'x': 410,
-    'y': 70
+    'x': animationMaterialX + chocolateXOffset,
+    'y': animationMaterial1Y - chocolateYOffset
   });
 
   chip1 = draw.image('./img/chip1.png', 128, 50).attr({
-    'x': 410,
-    'y': 370
+    'x': animationMaterialX + chocolateXOffset,
+    'y': animationMaterial1Y + selectBarSecondYSpacing - chocolateYOffset
   });
 
   chip2 = draw.image('./img/chip2.png', 128, 50).attr({
-        'x': 410,
-        'y': 70,
-        'opacity': 0
-      });
+    'x': animationMaterialX + chocolateXOffset,
+    'y': animationMaterial1Y - chocolateYOffset,
+    'opacity': 0
+  });
   chip3 = draw.image('./img/chip3.png', 128, 50).attr({
-      'x': 410,
-      'y': 70,
-      'opacity': 0
-    });
+    'x': animationMaterialX + chocolateXOffset,
+    'y': animationMaterial1Y - chocolateYOffset,
+    'opacity': 0
+  });
   chip4 = draw.image('./img/chip2.png', 128, 50).attr({
-        'x': 410,
-        'y': 370,
-        'opacity': 0
-      });
+    'x': animationMaterialX + chocolateXOffset,
+    'y': animationMaterial1Y + selectBarSecondYSpacing - chocolateYOffset,
+    'opacity': 0
+  });
   chip5 = draw.image('./img/chip3.png', 128, 50).attr({
-      'x': 410,
-      'y': 370,
-      'opacity': 0
-    });
+    'x': animationMaterialX + chocolateXOffset,
+    'y': animationMaterial1Y + selectBarSecondYSpacing - chocolateYOffset,
+    'opacity': 0
+  });
   set.add(rect1, rect2, chip, chip1, chip2, chip3, chip4, chip5);
   arr.push(rect1, rect2, chip, chip1, chip2, chip3, chip4, chip5);
 }
