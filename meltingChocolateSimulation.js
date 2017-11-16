@@ -44,7 +44,7 @@ function init() {
   }).click(function() {
     select(1)
   }).addClass('clickable');
-  metalText = draw.text('Metal (Good Thermal Conductor)').x(340).y(170);
+  metalText = draw.text('Metal').x(340).y(170);
 
   glass = draw.image('./img/2.png', 200, 18).attr({
     'x': 130,
@@ -52,7 +52,7 @@ function init() {
   }).click(function() {
     select(2);
   }).addClass('clickable');
-  glassText = draw.text('Glass (Medium Thermal Conductor)').x(340).y(210);
+  glassText = draw.text('Glass').x(340).y(210);
 
   wood = draw.image('./img/3.png', 200, 17).attr({
     'x': 130,
@@ -60,7 +60,7 @@ function init() {
   }).click(function() {
     select(3);
   }).addClass('clickable');
-  woodText = draw.text('Wood (Poor Thermal Conductor)').x(340).y(250);
+  woodText = draw.text('Wood').x(340).y(250);
 
   drawArrow1();
   <!-- ------------------------------------------- -->
@@ -73,7 +73,7 @@ function init() {
   }).click(function() {
     select2(1)
   }).addClass('clickable');
-  metalText2 = draw.text('Metal (Good Thermal Conductor)').x(340).y(470);
+  metalText2 = draw.text('Metal').x(340).y(470);
 
   glass2 = draw.image('./img/2.png', 200, 18).attr({
     'x': 130,
@@ -82,7 +82,7 @@ function init() {
   }).click(function() {
     select2(2)
   }).addClass('clickable');
-  glassText2 = draw.text('Glass (Medium Thermal Conductor)').x(340).y(510);
+  glassText2 = draw.text('Glass').x(340).y(510);
 
   wood2 = draw.image('./img/3.png', 200, 17).attr({
     'x': 130,
@@ -91,7 +91,7 @@ function init() {
   }).click(function() {
     select2(3)
   }).addClass('clickable');
-  woodText2 = draw.text('Wood (Poor Thermal Conductor)').x(340).y(550);
+  woodText2 = draw.text('Wood').x(340).y(550);
   <!-- ------------------------------------------- -->
 }
 
