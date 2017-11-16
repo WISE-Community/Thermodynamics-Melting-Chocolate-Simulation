@@ -38,27 +38,27 @@ function init() {
   set = draw.set();
 
   <!-- ----------------GROUP 1-------------------- -->
-  metal = draw.image('./img/1.png', 200, 17).attr({
+  metal = draw.image('./img/metal.png', 200, 17).attr({
     'x': 130,
     'y': 170
   }).click(function() {
-    select(1)
+    select('metal')
   }).addClass('clickable');
   metalText = draw.text('Metal').x(340).y(170);
 
-  glass = draw.image('./img/2.png', 200, 18).attr({
+  glass = draw.image('./img/glass.png', 200, 18).attr({
     'x': 130,
     'y': 210
   }).click(function() {
-    select(2);
+    select('glass');
   }).addClass('clickable');
   glassText = draw.text('Glass').x(340).y(210);
 
-  wood = draw.image('./img/3.png', 200, 17).attr({
+  wood = draw.image('./img/wood.png', 200, 17).attr({
     'x': 130,
     'y': 250
   }).click(function() {
-    select(3);
+    select('wood');
   }).addClass('clickable');
   woodText = draw.text('Wood').x(340).y(250);
 
@@ -66,30 +66,30 @@ function init() {
   <!-- ------------------------------------------- -->
 
   <!-- ----------------GROUP 2-------------------- -->
-  metal2 = draw.image('./img/1.png', 200, 17).attr({
+  metal2 = draw.image('./img/metal.png', 200, 17).attr({
     'x': 130,
     'y': 470,
     'bottom': true
   }).click(function() {
-    select2(1)
+    select2('metal')
   }).addClass('clickable');
   metalText2 = draw.text('Metal').x(340).y(470);
 
-  glass2 = draw.image('./img/2.png', 200, 18).attr({
+  glass2 = draw.image('./img/glass.png', 200, 18).attr({
     'x': 130,
     'y': 510,
     'bottom': true
   }).click(function() {
-    select2(2)
+    select2('glass')
   }).addClass('clickable');
   glassText2 = draw.text('Glass').x(340).y(510);
 
-  wood2 = draw.image('./img/3.png', 200, 17).attr({
+  wood2 = draw.image('./img/wood.png', 200, 17).attr({
     'x': 130,
     'y': 550,
     'bottom': true
   }).click(function() {
-    select2(3)
+    select2('wood')
   }).addClass('clickable');
   woodText2 = draw.text('Wood').x(340).y(550);
   <!-- ------------------------------------------- -->
@@ -97,7 +97,7 @@ function init() {
 
 
 //selects the type of material and draws it on the screen
-function select(num) {
+function select(material) {
   //removes the plank/iron if it has already been drawn
   if (typeof plank !== 'undefined') {
     plank.remove();
@@ -111,22 +111,52 @@ function select(num) {
   arrow.remove()
   arrowText.remove();
   click1 = true;
-  selection1 = num;
-  submission[0] = num;
-  plank = draw.image('./img/' + num + '.png', 400, 35).attr({
+  //selection1 = num;
+  setSelection1(material);
+  plank = draw.image('./img/' + material + '.png', 400, 35).attr({
     'x': 130,
     'y': 90
   })
   set.add(plank);
   arr.push(plank);
-  iron = draw.image('./img/5.png', 100, 100).attr({
+  iron = draw.image('./img/iron.png', 100, 100).attr({
     'x': 10,
     'y': 50
     });
   drawArrow2()
 }
 
-function select2(num) {
+function setSelection1(material) {
+  let num = 0;
+
+  if (material == 'metal') {
+    num = 1;
+  } else if (material == 'glass') {
+    num = 2;
+  } else if (material == 'wood') {
+    num = 3;
+  }
+
+  selection1 = num;
+  submission[0] = num;
+}
+
+function setSelection2(material) {
+  let num = 0;
+
+  if (material == 'metal') {
+    num = 1;
+  } else if (material == 'glass') {
+    num = 2;
+  } else if (material == 'wood') {
+    num = 3;
+  }
+
+  selection2 = num;
+  submission[1] = num;
+}
+
+function select2(material) {
   //cannot select bottom material until top material has been selected
   if (click1 === false) {
     return;
@@ -139,19 +169,18 @@ function select2(num) {
   if (startButtonBool === true) {
     stopAnim();
   }
-  submission[1] = num;
   arrow2.remove()
   arrowText2.remove();
   drawStartButton();
   drawResetButton();
-  selection2 = num;
-  plank2 = draw.image('./img/' + num + '.png', 400, 35).attr({
+  setSelection2(material);
+  plank2 = draw.image('./img/' + material + '.png', 400, 35).attr({
     'x': 130,
     'y': 390
   })
   set.add(plank2);
   arr.push(plank2);
-  iron2 = draw.image('./img/5.png', 100, 100).attr({
+  iron2 = draw.image('./img/iron.png', 100, 100).attr({
   'x': 10,
   'y': 350
   });
