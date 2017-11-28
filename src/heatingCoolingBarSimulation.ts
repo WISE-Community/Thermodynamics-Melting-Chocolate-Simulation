@@ -286,6 +286,14 @@ export class HeatingCoolingBarSimulation {
   }
 
   /**
+   * Set the color of the message that shows up at the bottom.
+   * @param color the color of the text which can be a color name or hex string
+   */
+  setBottomMessageColor(color) {
+    this.bottomMessage.fill(color);
+  }
+
+  /**
    * A bar animation has completed.
    * @param material the name of the material 'metal', 'glass', or 'wood'
    */
@@ -308,18 +316,24 @@ export class HeatingCoolingBarSimulation {
     if (this.isHeating()) {
       if (this.materialClicked == 'metal') {
         this.setBottomMessage(this.heatingCorrectMetalMessage);
+        this.setBottomMessageColor('green');
       } else if (this.materialClicked == 'glass') {
         this.setBottomMessage(this.heatingIncorrectGlassMessage);
+        this.setBottomMessageColor('red');
       } else if (this.materialClicked == 'wood') {
         this.setBottomMessage(this.heatingIncorrectWoodMessage);
+        this.setBottomMessageColor('red');
       }
     } else if (this.isCooling()) {
       if (this.materialClicked == 'metal') {
         this.setBottomMessage(this.coolingCorrectMetalMessage);
+        this.setBottomMessageColor('green');
       } else if (this.materialClicked == 'glass') {
         this.setBottomMessage(this.coolingIncorrectGlassMessage);
+        this.setBottomMessageColor('red');
       } else if (this.materialClicked == 'wood') {
         this.setBottomMessage(this.coolingIncorrectWoodMessage);
+        this.setBottomMessageColor('red');
       }
     }
 
