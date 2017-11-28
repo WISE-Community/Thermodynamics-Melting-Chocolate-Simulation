@@ -54,26 +54,28 @@ export class Bar {
     // the material label shown to the left of the bar
     this.text = this.draw.text(this.materialLabel).x(x - 100).y(y);
 
-    // create the iron
     this.createIron(x - 60, y - 15);
     this.hideIron();
 
-    // create the check mark
+    this.createAirConditioner(x - 50, y - 20);
+    this.hideAirConditioner();
+
     this.createCheckMark(x - 130, y - 4);
     this.hideCheckMark();
 
-    // create the heat mask
-    this.createHeat(width, height, x, y);
+    this.createHeatMask(width, height, x, y);
+    this.createCoolMask(width, height, x, y);
 
-    // create the cups
     this.createCups(x + 150, y - 42);
-    this.hideCups();
+    this.hideCup();
 
-    // create the timer
     this.createTimer(x + 220, y);
     this.hideTimer();
 
-    // we will store all the animations in this array
+    /*
+     * We will store all the animations in this array which will be used for
+     * pausing and resuming animations.
+     */
     this.allAnimations = [];
 
     this.image.click(() => {
@@ -81,6 +83,10 @@ export class Bar {
     });
 
     this.text.click(() => {
+      this.clicked();
+    });
+
+    this.heatMaskRect.click(() => {
       this.clicked();
     });
   }
@@ -104,7 +110,7 @@ export class Bar {
   }
 
   /**
-   * Create the iron
+   * Create the iron image.
    * @param x the x position in pixels
    * @param y the y position in pixels
    */
@@ -125,27 +131,51 @@ export class Bar {
   }
 
   /**
+   * Create the air conditioner on and off images.
+   * @param x the x position in pixels
+   * @param y the y position in pixels
+   */
+  createAirConditioner(x, y) {
+    this.airConditionerOn = this.draw.image('./images/airConditionerOn.png', 50, 50).move(x, y);
+    this.airConditionerOff = this.draw.image('./images/airConditionerOff.png', 50, 50).move(x, y);
+  }
+
+  hideAirConditioner() {
+    this.airConditionerOn.hide();
+    this.airConditionerOff.hide();
+  }
+
+  showAirConditioner() {
+    this.airConditionerOn.hide();
+    this.airConditionerOff.show();
+  }
+
+  turnOnAirConditioner() {
+    this.airConditionerOff.hide();
+    this.airConditionerOn.show();
+    this.coolDownBar();
+  }
+
+  /**
    * Create the cups. The cups will all be on top of each other. The hot cup
-   * will be behind the warm cup which will be behind the cold cup. This means
-   * the student will only see the cold cup when the simulation starts.
+   * will be behind the warm cup which will be behind the cold cup. We will will
+   * later change which cup is on top depending on whether the student is
+   * running the heating or cooling simulation.
    * @param x the x position in pixels
    * @param y the y position in pixels
    */
   createCups(x, y) {
     this.hotCup = this.draw.image('./images/hotCup.png', 50, 50).move(x, y);
-    this.warmCup = this.draw.image('./images/warmCup.png', 50, 50).move(x, y);
     this.coldCup = this.draw.image('./images/coldCup.png', 50, 50).move(x, y);
   }
 
-  hideCups() {
+  hideCup() {
     this.hotCup.hide();
-    this.warmCup.hide();
     this.coldCup.hide();
   }
 
-  showCups() {
+  showCup() {
     this.hotCup.show();
-    this.warmCup.show();
     this.coldCup.show();
   }
 
@@ -218,15 +248,64 @@ export class Bar {
    * @param x the x position of the heat mask in pixels
    * @param y the y position of the heat mask in pixels
    */
-  createHeat(width, height, x, y) {
-    this.mask = this.draw.polygon('130,122 130,100 150,90 525,90 525,114 515,122').fill('white');
-    this.mask.width(width - 2).height(height - 1);
-    this.mask.x(x).y(y);
-    this.maskRect = this.draw.rect(0, 35).attr({
+  createHeatMask(width, height, x, y) {
+    this.heatMask = this.draw.polygon('130,122 130,100 150,90 525,90 525,114 515,122').fill('white');
+    this.heatMask.width(width - 2).height(height - 1);
+    this.heatMask.x(x).y(y);
+    this.heatMaskRect = this.draw.rect(0, 35).attr({
       'x': x,
       'y': y
     }).opacity(.3).fill('red');
-    this.maskRect.maskWith(this.mask);
+    this.heatMaskRect.maskWith(this.heatMask);
+  }
+
+  /**
+   * Create the cool mask that we will show when the simulation starts running.
+   * @param width the width of the cool mask in pixels
+   * @param height the height of the cool mask in pixels
+   * @param x the x position of the cool mask in pixels
+   * @param y the y position of the cool mask in pixels
+   */
+  createCoolMask(width, height, x, y) {
+    this.coolMask = this.draw.polygon('130,122 130,100 150,90 525,90 525,114 515,122').fill('white');
+    this.coolMask.width(width - 2).height(height - 1);
+    this.coolMask.x(x).y(y);
+    this.coolMaskRect = this.draw.rect(0, 35).attr({
+      'x': x,
+      'y': y
+    }).opacity(.3).fill('blue');
+    this.coolMaskRect.maskWith(this.coolMask);
+  }
+
+  /**
+   * The student is running the heating simulation and has chosen a bar so now
+   * we will get ready to start the simulation by showing the appropriate
+   * elements on the screen. The simulation will not start until the student
+   * clicks the Play button.
+   */
+  setupHeating() {
+    this.showIron();
+    this.coldCup.front();
+    this.coldCup.show();
+    this.coldCup.opacity(1);
+    this.hotCup.show();
+    this.hotCup.opacity(1);
+  }
+
+  /**
+   * The student is running the cooling simulation and has chosen a bar so now
+   * we will get ready to start the simulation by showing the appropriate
+   * elements on the screen. The simulation will not start until the student
+   * clicks the Play button.
+   */
+  setupCooling() {
+    this.showAirConditioner();
+    this.hotCup.front();
+    this.hotCup.show();
+    this.hotCup.opacity(1);
+    this.coldCup.show();
+    this.coldCup.opacity(1);
+    this.heatMaskRect.attr('width', 200);
   }
 
   /**
@@ -262,7 +341,7 @@ export class Bar {
   }
 
   /**
-   * Start heating up the bar.
+   * Start heating up the bar by animating the red mask.
    */
   heatUpBar() {
     let multiplier = 1;
@@ -276,7 +355,7 @@ export class Bar {
     }
 
     // show the heat mask on the bar
-    this.barHeatAnimation = this.maskRect.animate(multiplier * 3000 + 3000).attr({
+    this.barHeatAnimation = this.heatMaskRect.animate(multiplier * 3000 + 3000).attr({
       'width': 200
     }).after(() => { this.heatUpCup(); }).duringAll((pos) => {
       // update the timer that is shown to the student
@@ -289,28 +368,69 @@ export class Bar {
    * Start heating up the cup.
    */
   heatUpCup() {
-    // slowly hide the cold cup which will reveal the warm cup behind it
-    this.coldCupAnimation = this.coldCup.animate(2000).opacity(0).after(() => {
-      // slowly hide the warm cup which will reveal the hot cup behind it
-      this.warmCupAnimation = this.warmCup.animate(2000).opacity(0).after(() => {
-        this.setState('completed');
-        // tell the simulation that this bar is completed
-        this.heatingCoolingBarSimulation.barAnimationCompleted(this.material);
-      });
-      this.addAnimation(this.warmCupAnimation);
+    // slowly hide the cold cup which will reveal the hot cup behind it
+    this.coldCupAnimation = this.coldCup.animate(4000).opacity(0).after(() => {
+      this.setState('completed');
+      // tell the simulation that this bar is completed
+      this.heatingCoolingBarSimulation.barAnimationCompleted(this.material);
     }).duringAll((pos) => {
       // update the timer that is shown to the student
       this.updateTimer();
     });
+
     this.addAnimation(this.coldCupAnimation);
   }
 
   hideHeat() {
-    this.maskRect.hide();
+    this.heatMaskRect.hide();
   }
 
   resetHeat() {
-    this.maskRect.attr({ 'width': 0 });
+    this.heatMaskRect.attr({ 'width': 0 });
+  }
+
+  resetCool() {
+    this.coolMaskRect.attr({ 'width': 0 });
+  }
+
+  /**
+   * Start cooling down the bar by animating the blue mask.
+   */
+  coolDownBar() {
+    let multiplier = 1;
+
+    if (this.material == 'metal') {
+      multiplier = 1;
+    } else if (this.material == 'glass') {
+      multiplier = 2;
+    } else if (this.material == 'wood') {
+      multiplier = 4;
+    }
+
+    // show the cool mask on the bar
+    this.barCoolAnimation = this.coolMaskRect.animate(multiplier * 3000 + 3000).attr({
+      'width': 200
+    }).after(() => { this.coolDownCup(); }).duringAll((pos) => {
+      // update the timer that is shown to the student
+      this.updateTimer();
+    });
+    this.addAnimation(this.barCoolAnimation);
+  }
+
+  /**
+   * Start cooling down the cup.
+   */
+  coolDownCup() {
+    // slowly hide the hot cup which will reveal the cold cup behind it
+    this.hotCupAnimation = this.hotCup.animate(4000).opacity(0).after(() => {
+      this.setState('completed');
+      // tell the simulation that this bar is completed
+      this.heatingCoolingBarSimulation.barAnimationCompleted(this.material);
+    }).duringAll((pos) => {
+      // update the timer that is shown to the student
+      this.updateTimer();
+    });
+    this.addAnimation(this.hotCupAnimation);
   }
 
   /**
@@ -319,20 +439,24 @@ export class Bar {
   resetCup() {
     // remove the transparancy from the cups so they are solid again
     this.coldCup.opacity(1);
-    this.warmCup.opacity(1);
     this.hotCup.opacity(1);
 
-    this.hideCups();
+    this.hideCup();
   }
 
   /**
    * Start playing the simulation
    */
-  play() {
+  play(setting) {
     if (this.getState() != 'completed') {
       this.setState('playing');
       this.showTimer();
-      this.moveIronToBar();
+
+      if (setting == 'heating') {
+        this.moveIronToBar();
+      } else if (setting == 'cooling') {
+        this.turnOnAirConditioner();
+      }
     }
   }
 
@@ -381,12 +505,14 @@ export class Bar {
   reset() {
     this.stop();
     this.resetHeat();
+    this.resetCool();
     this.resetCup();
     this.resetIronPosition();
     this.resetTimer();
     this.hideTimer();
     this.hideCheckMark();
     this.hideIron();
+    this.hideAirConditioner();
     this.clearAllAnimations();
     this.setState('initialized');
   }
