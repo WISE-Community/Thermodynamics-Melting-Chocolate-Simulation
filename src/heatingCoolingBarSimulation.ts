@@ -1,5 +1,6 @@
 import { Bar } from './bar';
 import { Controls } from './controls';
+import { parseURLParameters } from "./util";
 import * as $ from 'jquery';
 import * as SVG from 'svgjs';
 
@@ -31,16 +32,37 @@ export class HeatingCoolingBarSimulation {
   guessingEnabled: boolean;
 
   // the messages we will show to the student
-  clickOnTheMaterialMessage: string = 'Click on the material that you think will heat up the fastest.';
-  clickThePlayButtonMessage: string = 'Click the Play button to start heating up the bars.';
-  correctMetalMessage: string = 'Correct! Metal conducts heat the fastest.';
-  incorrectGlassMessage: string = 'Incorrect! Glass does not conduct heat the fastest.\nMetal conducts heat the fastest.';
-  incorrectWoodMessage: string = 'Incorrect! Wood does not conduct heat the fastest.\nMetal conducts heat the fastest.';
+  heatingClickOnTheMaterialMessage: string = 'Click on the material that you think will heat up the fastest.';
+  heatingClickThePlayButtonMessage: string = 'Click the Play button to start heating up the bars.';
+  heatingCorrectMetalMessage: string = 'Correct! Metal heats up the fastest.';
+  heatingIncorrectGlassMessage: string = 'Incorrect! Glass does not heat up the fastest.\nMetal heats up the fastest.';
+  heatingIncorrectWoodMessage: string = 'Incorrect! Wood does not heat up the fastest.\nMetal heats up the fastest.';
+
+  // the messages we will show to the student
+  coolingClickOnTheMaterialMessage: string = 'Click on the material that you think will cool down the fastest.';
+  coolingClickThePlayButtonMessage: string = 'Click the Play button to start cooling down the bars.';
+  coolingCorrectMetalMessage: string = 'Correct! Metal cools down the fastest.';
+  coolingIncorrectGlassMessage: string = 'Incorrect! Glass does not cool down the fastest.\nMetal cools down the fastest.';
+  coolingIncorrectWoodMessage: string = 'Incorrect! Wood does not cool down the fastest.\nMetal cools down the fastest.';
+
+  // whether the simulation can run in heating mode
+  allowHeating: boolean;
+
+  // whether the simulation can run in cooling mode
+  allowCooling: boolean;
+
+  //
+  mode: string;
 
   /**
    * Initialize the simulation.
    */
   constructor() {
+
+    // obtain the GET parameters
+    this.parameters = parseURLParameters();
+    this.setParameters(this.parameters);
+
     this.setState('initialized');
 
     // handles the play/pause and reset buttons
@@ -50,6 +72,12 @@ export class HeatingCoolingBarSimulation {
     this.controls.disablePlayPauseButton();
 
     this.draw = SVG('model');
+
+    this.mode = 'heating';
+
+    if (this.allowCooling) {
+      this.mode = 'cooling';
+    }
 
     let barWidth = 200;
     let barHeight = 18;
@@ -66,8 +94,7 @@ export class HeatingCoolingBarSimulation {
         barWidth,
         barHeight,
         barX,
-        barY,
-        textX);
+        barY);
     this.glassBar = new Bar(this,
         this.draw,
         'glass',
@@ -75,8 +102,7 @@ export class HeatingCoolingBarSimulation {
         barWidth,
         barHeight,
         barX,
-        barY + barYSpacing,
-        textX);
+        barY + barYSpacing);
     this.woodBar = new Bar(this,
         this.draw,
         'wood',
@@ -84,8 +110,7 @@ export class HeatingCoolingBarSimulation {
         barWidth,
         barHeight,
         barX,
-        barY + (barYSpacing * 2),
-        textX);
+        barY + (barYSpacing * 2));
 
     this.bars = [
       this.metalBar,
@@ -94,7 +119,13 @@ export class HeatingCoolingBarSimulation {
     ];
 
     // display the instructions to the student
-    this.createTopMessage(this.clickOnTheMaterialMessage);
+    let message = '';
+    if (this.isHeating()) {
+      message = this.heatingClickOnTheMaterialMessage;
+    } else if (this.isCooling()) {
+      message = this.coolingClickOnTheMaterialMessage;
+    }
+    this.createTopMessage(message);
     this.createBottomMessage('');
 
     // allow the student to click on a bar
@@ -128,12 +159,20 @@ export class HeatingCoolingBarSimulation {
 
       for (let bar of this.bars) {
         bar.hideCheckMark();
-        bar.showIron();
-        bar.showCups();
+
+        if (this.isHeating()) {
+          bar.setupHeating();
+        } else if (this.isCooling()) {
+          bar.setupCooling();
+        }
       }
 
       this.controls.enablePlayPauseButton();
-      this.setTopMessage(this.clickThePlayButtonMessage);
+      if (this.isHeating()) {
+        this.setTopMessage(this.heatingClickThePlayButtonMessage);
+      } else if (this.isCooling()) {
+        this.setTopMessage(this.coolingClickThePlayButtonMessage);
+      }
       this.materialClicked = material;
     }
   }
@@ -165,7 +204,7 @@ export class HeatingCoolingBarSimulation {
   play() {
     this.disableGuessing();
     for (let bar of this.bars) {
-      bar.play();
+      bar.play(this.mode);
     }
     this.setState('playing');
     this.controls.showPauseButton();
@@ -203,7 +242,11 @@ export class HeatingCoolingBarSimulation {
     this.setState('initialized');
     this.controls.disablePlayPauseButton();
     this.setBottomMessage('');
-    this.setTopMessage(this.clickOnTheMaterialMessage);
+    if (this.isHeating()) {
+      this.setTopMessage(this.heatingClickOnTheMaterialMessage);
+    } else if (this.isCooling()) {
+      this.setTopMessage(this.coolingClickOnTheMaterialMessage);
+    }
     this.enableGuessing();
     this.controls.showPlayButton();
   }
@@ -261,14 +304,46 @@ export class HeatingCoolingBarSimulation {
    * The animation has completed.
    */
   animationCompleted() {
-    if (this.materialClicked == 'metal') {
-      this.setBottomMessage(this.correctMetalMessage);
-    } else if (this.materialClicked == 'glass') {
-      this.setBottomMessage(this.incorrectGlassMessage);
-    } else if (this.materialClicked == 'wood') {
-      this.setBottomMessage(this.incorrectWoodMessage);
+
+    if (this.isHeating()) {
+      if (this.materialClicked == 'metal') {
+        this.setBottomMessage(this.heatingCorrectMetalMessage);
+      } else if (this.materialClicked == 'glass') {
+        this.setBottomMessage(this.heatingIncorrectGlassMessage);
+      } else if (this.materialClicked == 'wood') {
+        this.setBottomMessage(this.heatingIncorrectWoodMessage);
+      }
+    } else if (this.isCooling()) {
+      if (this.materialClicked == 'metal') {
+        this.setBottomMessage(this.coolingCorrectMetalMessage);
+      } else if (this.materialClicked == 'glass') {
+        this.setBottomMessage(this.coolingIncorrectGlassMessage);
+      } else if (this.materialClicked == 'wood') {
+        this.setBottomMessage(this.coolingIncorrectWoodMessage);
+      }
     }
+
     this.setTopMessage('');
     this.controls.disablePlayPauseButton();
+  }
+
+  /**
+   * Use the url parameters if there are any.
+   * @parameters An object containing key/value pairs.
+   */
+  setParameters(parameters) {
+    if (parameters.mode == 'heating') {
+      this.allowHeating = true;
+    } else if (parameters.mode == 'cooling') {
+      this.allowCooling = true;
+    }
+  }
+
+  isHeating() {
+    return this.mode == 'heating';
+  }
+
+  isCooling() {
+    return this.mode == 'cooling';
   }
 }
