@@ -14,6 +14,9 @@ export class HeatingCoolingBarSimulation {
   // the svg.js element we will use to draw and animate
   draw: any;
 
+  // handles the logic for the button
+  controls: Controls;
+
   // the bars
   metalBar: any;
   glassBar: any;
@@ -68,8 +71,12 @@ export class HeatingCoolingBarSimulation {
     // handles the play/pause and reset buttons
     this.controls = new Controls(this);
 
-    // disable the play/pause button until the student has chosen a material
+    /*
+     * disable the play/pause button and reset button until the student has
+     * chosen a material
+     */
     this.controls.disablePlayPauseButton();
+    this.controls.disableResetButton();
 
     this.draw = SVG('model');
 
@@ -146,7 +153,7 @@ export class HeatingCoolingBarSimulation {
    * @param state a string which can be 'initialized', 'playing', 'paused', or
    * 'completed'
    */
-  setState(state) {
+  setState(state: string) {
     this.state = state;
   }
 
@@ -168,6 +175,7 @@ export class HeatingCoolingBarSimulation {
       }
 
       this.controls.enablePlayPauseButton();
+      this.controls.enableResetButton();
       if (this.isHeating()) {
         this.setTopMessage(this.heatingClickThePlayButtonMessage);
       } else if (this.isCooling()) {
@@ -203,6 +211,7 @@ export class HeatingCoolingBarSimulation {
    */
   play() {
     this.disableGuessing();
+    this.setTopMessage('');
     for (let bar of this.bars) {
       bar.play(this.mode);
     }
@@ -241,6 +250,7 @@ export class HeatingCoolingBarSimulation {
     }
     this.setState('initialized');
     this.controls.disablePlayPauseButton();
+    this.controls.disableResetButton();
     this.setBottomMessage('');
     if (this.isHeating()) {
       this.setTopMessage(this.heatingClickOnTheMaterialMessage);
@@ -256,7 +266,7 @@ export class HeatingCoolingBarSimulation {
    * beginning of the simulation.
    * @param text the text to show in the message
    */
-  createTopMessage(text) {
+  createTopMessage(text: string) {
     this.topMessage = this.draw.text(text).move(30, 20);
   }
 
@@ -265,7 +275,7 @@ export class HeatingCoolingBarSimulation {
    * the simulation.
    * @param text the text to show in the message
    */
-  createBottomMessage(text) {
+  createBottomMessage(text: string) {
     this.bottomMessage = this.draw.text(text).move(30, 320);
   }
 
@@ -273,7 +283,7 @@ export class HeatingCoolingBarSimulation {
    * Set the message at the top.
    * @param text the text to show in the message
    */
-  setTopMessage(text) {
+  setTopMessage(text: string) {
     this.topMessage.text(text);
   }
 
@@ -281,7 +291,7 @@ export class HeatingCoolingBarSimulation {
    * Set the message at the bottom.
    * @param text the text to show in the message
    */
-  setBottomMessage(text) {
+  setBottomMessage(text: string) {
     this.bottomMessage.text(text);
   }
 
@@ -289,7 +299,7 @@ export class HeatingCoolingBarSimulation {
    * Set the color of the message that shows up at the bottom.
    * @param color the color of the text which can be a color name or hex string
    */
-  setBottomMessageColor(color) {
+  setBottomMessageColor(color: string) {
     this.bottomMessage.fill(color);
   }
 
@@ -297,7 +307,7 @@ export class HeatingCoolingBarSimulation {
    * A bar animation has completed.
    * @param material the name of the material 'metal', 'glass', or 'wood'
    */
-  barAnimationCompleted(material) {
+  barAnimationCompleted(material: string) {
     if (material == 'wood') {
       /*
        * the wood material is the last to complete which means the whole
@@ -312,7 +322,6 @@ export class HeatingCoolingBarSimulation {
    * The animation has completed.
    */
   animationCompleted() {
-
     if (this.isHeating()) {
       if (this.materialClicked == 'metal') {
         this.setBottomMessage(this.heatingCorrectMetalMessage);
@@ -345,7 +354,7 @@ export class HeatingCoolingBarSimulation {
    * Use the url parameters if there are any.
    * @parameters An object containing key/value pairs.
    */
-  setParameters(parameters) {
+  setParameters(parameters: object) {
     if (parameters.mode == 'heating') {
       this.allowHeating = true;
     } else if (parameters.mode == 'cooling') {
