@@ -41,7 +41,14 @@ export class Bar {
    * @param x the x position of the bar in pixels
    * @param y the y position of the bar in pixels
    */
-  constructor(heatingCoolingBarSimulation, draw, material, image, width, height, x, y) {
+  constructor(heatingCoolingBarSimulation: HeatingCoolingBarSimulation,
+      draw: object,
+      material: string,
+      image: string,
+      width: number,
+      height: number,
+      x: number,
+      y: number) {
     this.heatingCoolingBarSimulation = heatingCoolingBarSimulation;
     this.draw = draw;
     this.image = this.draw.image(image, width, height).attr({
@@ -89,6 +96,27 @@ export class Bar {
     this.heatMaskRect.click(() => {
       this.clicked();
     });
+
+    this.enableClicking();
+  }
+
+  /**
+   * Make the cursor change to a hand when it is over elements that can be
+   * clicked.
+   */
+  enableClicking() {
+    this.image.attr( { cursor: 'pointer' } );
+    this.text.attr( { cursor: 'pointer' } );
+    this.heatMaskRect.attr( { cursor: 'pointer' } );
+  }
+
+  /**
+   * Make the cursor not change to a hand.
+   */
+  disableClicking() {
+    this.image.attr( { cursor: null } );
+    this.text.attr( { cursor: null } );
+    this.heatMaskRect.attr( { cursor: null } );
   }
 
   /**
@@ -96,7 +124,7 @@ export class Bar {
    * @param state a string which can be 'initialized', 'playing', 'paused', or
    * 'completed'
    */
-  setState(state) {
+  setState(state: string) {
     this.state = state;
   }
 
@@ -114,7 +142,7 @@ export class Bar {
    * @param x the x position in pixels
    * @param y the y position in pixels
    */
-  createIron(x, y) {
+  createIron(x: number, y: number) {
     // remember the original position so we can reset it
     this.originalIronPosition = x;
 
@@ -135,7 +163,7 @@ export class Bar {
    * @param x the x position in pixels
    * @param y the y position in pixels
    */
-  createAirConditioner(x, y) {
+  createAirConditioner(x: number, y: number) {
     this.airConditionerOn = this.draw.image('./images/airConditionerOn.png', 50, 50).move(x, y);
     this.airConditionerOff = this.draw.image('./images/airConditionerOff.png', 50, 50).move(x, y);
   }
@@ -164,7 +192,7 @@ export class Bar {
    * @param x the x position in pixels
    * @param y the y position in pixels
    */
-  createCups(x, y) {
+  createCups(x: number, y: number) {
     this.hotCup = this.draw.image('./images/hotCup.png', 50, 50).move(x, y);
     this.coldCup = this.draw.image('./images/coldCup.png', 50, 50).move(x, y);
   }
@@ -184,7 +212,7 @@ export class Bar {
    * @param x the x position of the check mark in pixels
    * @param y the y posision of the check mark in pixels
    */
-  createCheckMark(x, y) {
+  createCheckMark(x: number, y: number) {
     this.checkMark = this.draw.image('./images/ic_check_black_24px.svg', 24, 24).move(x, y);
   }
 
@@ -201,7 +229,7 @@ export class Bar {
    * @param x the x position of the timer
    * @param y the y position of the timer
    */
-  createTimer(x, y) {
+  createTimer(x: number, y: number) {
     this.timerText = this.draw.text(this.timer + ' seconds').move(x, y);
   }
 
@@ -248,7 +276,7 @@ export class Bar {
    * @param x the x position of the heat mask in pixels
    * @param y the y position of the heat mask in pixels
    */
-  createHeatMask(width, height, x, y) {
+  createHeatMask(width: number, height: number, x: number, y: number) {
     this.heatMask = this.draw.polygon('130,122 130,100 150,90 525,90 525,114 515,122').fill('white');
     this.heatMask.width(width - 2).height(height - 1);
     this.heatMask.x(x).y(y);
@@ -266,7 +294,7 @@ export class Bar {
    * @param x the x position of the cool mask in pixels
    * @param y the y position of the cool mask in pixels
    */
-  createCoolMask(width, height, x, y) {
+  createCoolMask(width: number, height: number, x: number, y: number) {
     this.coolMask = this.draw.polygon('130,122 130,100 150,90 525,90 525,114 515,122').fill('white');
     this.coolMask.width(width - 2).height(height - 1);
     this.coolMask.x(x).y(y);
@@ -319,7 +347,7 @@ export class Bar {
    * Add an animation to our array of animation objects.
    * @param animation an svg.js animation object
    */
-  addAnimation(animation) {
+  addAnimation(animation: object) {
     this.allAnimations.push(animation);
   }
 
@@ -445,16 +473,18 @@ export class Bar {
   }
 
   /**
-   * Start playing the simulation
+   * Start playing the simulation.
+   * @param mode 'heating' or 'cooling' mode
    */
-  play(setting) {
+  play(mode: string) {
     if (this.getState() != 'completed') {
       this.setState('playing');
+      this.disableClicking();
       this.showTimer();
 
-      if (setting == 'heating') {
+      if (mode == 'heating') {
         this.moveIronToBar();
-      } else if (setting == 'cooling') {
+      } else if (mode == 'cooling') {
         this.turnOnAirConditioner();
       }
     }
@@ -514,6 +544,7 @@ export class Bar {
     this.hideIron();
     this.hideAirConditioner();
     this.clearAllAnimations();
+    this.enableClicking();
     this.setState('initialized');
   }
 }

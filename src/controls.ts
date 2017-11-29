@@ -4,12 +4,13 @@ export class Controls {
 
   playPauseButton: object;
   resetButton: object;
+  heatingCoolingBarSimulation: HeatingCoolingBarSimulation;
 
   /**
    * Set up click listeners on the buttons.
    * @param heatingCoolingBarSimulation a reference to the simulation object
    */
-  constructor(heatingCoolingBarSimulation: object) {
+  constructor(heatingCoolingBarSimulation: HeatingCoolingBarSimulation) {
     this.heatingCoolingBarSimulation = heatingCoolingBarSimulation;
 
     $('#playPauseButton').on('click', () => {
@@ -46,6 +47,7 @@ export class Controls {
    */
   enablePlayPauseButton() {
     $('#playPauseButton').prop('disabled', null);
+    $('#playPauseButton').css('cursor', 'pointer');
   }
 
   /**
@@ -53,6 +55,7 @@ export class Controls {
    */
   disablePlayPauseButton() {
     $('#playPauseButton').prop('disabled', true);
+    $('#playPauseButton').css('cursor', null);
   }
 
   /**
@@ -61,6 +64,22 @@ export class Controls {
    */
   setPlayPauseButtonIcon(text: string) {
     $('#playPauseButtonIcon').html(text);
+  }
+
+  /**
+   * Allow the student to click on the reset button.
+   */
+  enableResetButton() {
+    $('#resetButton').prop('disabled', null);
+    $('#resetButton').css('cursor', 'pointer');
+  }
+
+  /**
+   * Disallow the student from clicking the reset button.
+   */
+  disableResetButton() {
+    $('#resetButton').prop('disabled', true);
+    $('#resetButton').css('cursor', null);
   }
 
   /**

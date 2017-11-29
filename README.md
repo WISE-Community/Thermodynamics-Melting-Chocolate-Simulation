@@ -3,4 +3,6 @@ Simulates conductivity of various materials.
 
 ## Demo
 
-https://wise-community.github.io/Thermodynamics-Melting-Chocolate-Simulation/dist/index.html
+[Heating](https://wise-community.github.io/Thermodynamics-Melting-Chocolate-Simulation/dist/index.html?mode=heating)
+
+[Cooling](https://wise-community.github.io/Thermodynamics-Melting-Chocolate-Simulation/dist/index.html?mode=cooling)
