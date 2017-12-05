@@ -140,6 +140,14 @@ export class HeatingCoolingBarSimulation {
 
     // allow the student to click on a bar
     this.enableGuessing();
+
+    /*
+     * If the browser tab loses focus, we will manually set the timers when the
+     * simulation completes otherwise the timers may show erroneous times.
+     */
+    $(window).blur(() => {
+      this.blurOccurred = true;
+    });
   }
 
   /**
@@ -347,6 +355,17 @@ export class HeatingCoolingBarSimulation {
         this.setBottomMessage(this.coolingIncorrectWoodMessage);
         this.setBottomMessageColor('red');
       }
+    }
+
+    if (this.blurOccurred) {
+      /*
+       * The simulation has lost focus at some point during the simulation so
+       * we will manually set the end timers.
+       */
+      this.metalBar.setTimer(602);
+      this.glassBar.setTimer(782);
+      this.woodBar.setTimer(1142);
+      this.blurOccurred = false;
     }
 
     this.metalBar.setTimerColor('green');

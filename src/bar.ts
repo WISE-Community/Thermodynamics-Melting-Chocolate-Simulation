@@ -281,6 +281,15 @@ export class Bar {
   }
 
   /**
+   * Manually set the timer.
+   * @param seconds the time
+   */
+  setTimer(seconds: number) {
+    let minutes = Math.floor(seconds / 60);
+    this.timerText.text(this.getTimerText(minutes));
+  }
+
+  /**
    * Reset the timer to 0.
    */
   resetTimer() {
