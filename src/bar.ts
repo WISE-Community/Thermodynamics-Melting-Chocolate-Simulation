@@ -243,12 +243,22 @@ export class Bar {
   }
 
   /**
+   * Get the timer text that we will display to the student.
+   * @param time the number of minutes
+   * @return a string that will display how much time has passed
+   * example "5 minutes"
+   */
+  getTimerText(time: number) {
+    return time + ' minutes';
+  }
+
+  /**
    * Create the timer.
    * @param x the x position of the timer
    * @param y the y position of the timer
    */
   createTimer(x: number, y: number) {
-    this.timerText = this.draw.text(this.timer + ' seconds').move(x, y);
+    this.timerText = this.draw.text(this.getTimerText(this.timer)).move(x, y);
   }
 
   hideTimer() {
@@ -265,7 +275,8 @@ export class Bar {
   updateTimer() {
     if (this.getState() == 'playing') {
       this.timer += 1;
-      this.timerText.text(this.timer + ' seconds');
+      let minutes = Math.floor(this.timer / 60);
+      this.timerText.text(this.getTimerText(minutes));
     }
   }
 
@@ -274,7 +285,7 @@ export class Bar {
    */
   resetTimer() {
     this.timer = 0;
-    this.timerText.text(this.timer + ' seconds');
+    this.timerText.text(this.getTimerText(this.timer));
   }
 
   /**
