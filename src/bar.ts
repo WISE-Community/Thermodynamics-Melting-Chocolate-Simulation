@@ -83,44 +83,49 @@ export class Bar {
     this.createTimer(x + 220, y);
     this.hideTimer();
 
+    this.createInvisibleClickBox(x - 130, y - 40);
+    this.enableClicking();
+
     /*
      * We will store all the animations in this array which will be used for
      * pausing and resuming animations.
      */
     this.allAnimations = [];
-
-    this.image.click(() => {
-      this.clicked();
-    });
-
-    this.text.click(() => {
-      this.clicked();
-    });
-
-    this.heatPolygon.click(() => {
-      this.clicked();
-    });
-
-    this.enableClicking();
   }
 
   /**
-   * Make the cursor change to a hand when it is over elements that can be
-   * clicked.
+   * Create the invisible box that we will place over all the elements
+   * associated with this bar. This includes the material text label, iron,
+   * ice cube, cup, timer text, etc. The student can click anywhere on this
+   * box to select this bar as their prediction.
+   * @param x the x position in pixels
+   * @param y the y position in pixels
+   */
+  createInvisibleClickBox(x: number, y: number) {
+    this.invisibleClickBox = this.draw.rect(480, 80);
+    this.invisibleClickBox.move(x, y);
+    this.invisibleClickBox.attr('fill-opacity', 0);
+    this.invisibleClickBox.attr( { cursor: 'pointer' } );
+
+    this.invisibleClickBox.click(() => {
+      this.clicked();
+    });
+
+    this.invisibleClickBox.front();
+  }
+
+  /**
+   * Make the cursor change to a hand when it is over the invisible click box.
    */
   enableClicking() {
-    this.image.attr( { cursor: 'pointer' } );
-    this.text.attr( { cursor: 'pointer' } );
-    this.heatPolygon.attr( { cursor: 'pointer' } );
+    this.invisibleClickBox.attr( { cursor: 'pointer' } );
   }
 
   /**
    * Make the cursor not change to a hand.
    */
   disableClicking() {
-    this.image.attr( { cursor: null } );
-    this.text.attr( { cursor: null } );
-    this.heatPolygon.attr( { cursor: null } );
+    this.invisibleClickBox.attr( { cursor: null } );
   }
 
   /**
@@ -160,6 +165,13 @@ export class Bar {
 
   showIron() {
     this.iron.show();
+  }
+
+  /**
+   * Reset the iron position.
+   */
+  resetIronPosition() {
+    this.iron.x(this.originalIronPosition);
   }
 
   /**
@@ -362,6 +374,7 @@ export class Bar {
     this.coldCup.opacity(1);
     this.hotCup.show();
     this.hotCup.opacity(1);
+    this.invisibleClickBox.front();
     this.showHeatPolygon();
     this.setupHeatMaskForHeating();
   }
@@ -379,15 +392,9 @@ export class Bar {
     this.hotCup.opacity(1);
     this.coldCup.show();
     this.coldCup.opacity(1);
+    this.invisibleClickBox.front();
     this.showHeatPolygon();
     this.setupHeatMaskForCooling();
-  }
-
-  /**
-   * Reset the iron position.
-   */
-  resetIronPosition() {
-    this.iron.x(this.originalIronPosition);
   }
 
   /**
