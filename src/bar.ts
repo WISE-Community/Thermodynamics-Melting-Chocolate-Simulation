@@ -17,9 +17,6 @@ export class Bar {
   // the svg.js text object for the material name
   text: any;
 
-  // the checkmark
-  checkMark: any;
-
   // the name of the matieral
   material: string;
 
@@ -56,6 +53,10 @@ export class Bar {
     this.heatingCoolingBarSimulation = heatingCoolingBarSimulation;
     this.mode = mode;
     this.draw = draw;
+
+    this.createPredictionBox(x - 130, y - 40);
+    this.hidePredictionBox();
+
     this.image = this.draw.image(image, width, height).attr({
       'x': x,
       'y': y
@@ -66,14 +67,11 @@ export class Bar {
     // the material label shown to the left of the bar
     this.text = this.draw.text(this.materialLabel).x(x - 100).y(y);
 
-    this.createIron(x - 60, y - 15);
+    this.createIron(x - 60, y - 20);
     this.hideIron();
 
     this.createIceCube(x - 50, y - 20);
     this.hideIceCube();
-
-    this.createCheckMark(x - 130, y - 4);
-    this.hideCheckMark();
 
     this.createHeatPolygon(width, height, x, y);
     this.hideHeatPolygon();
@@ -206,20 +204,30 @@ export class Bar {
   }
 
   /**
-   * Create the check mark.
-   * @param x the x position of the check mark in pixels
-   * @param y the y posision of the check mark in pixels
+   * Create the box that surrounds the student's prediction. This also contains
+   * the "My Prediction" text at the upper left of the box.
+   * @param x the x position of the box from the upper left
+   * @param y the y position of the box from the upper left
    */
-  createCheckMark(x: number, y: number) {
-    this.checkMark = this.draw.image('./images/ic_check_black_24px.svg', 24, 24).move(x, y);
+  createPredictionBox(x: number, y: number) {
+    this.predictionBox = this.draw.rect(480, 80);
+    this.predictionBox.move(x, y);
+    this.predictionBox.attr('fill-opacity', 0);
+    this.predictionBox.stroke({ width: 1 });
+
+    this.predictionText = this.draw.text('My Prediction');
+    this.predictionText.font({ size: 10 });
+    this.predictionText.move(x + 22, y + 5);
   }
 
-  hideCheckMark() {
-    this.checkMark.hide();
+  hidePredictionBox() {
+    this.predictionBox.hide();
+    this.predictionText.hide();
   }
 
-  showCheckMark() {
-    this.checkMark.show();
+  showPredictionBox() {
+    this.predictionBox.show();
+    this.predictionText.show();
   }
 
   /**
@@ -278,7 +286,7 @@ export class Bar {
   clicked() {
     if (this.heatingCoolingBarSimulation.isGuessingEnabled()) {
       this.heatingCoolingBarSimulation.barClicked(this.material);
-      this.showCheckMark();
+      this.showPredictionBox();
     }
   }
 
@@ -586,7 +594,7 @@ export class Bar {
     this.resetTimerColor();
     this.hideTimer();
     this.hideHeatPolygon();
-    this.hideCheckMark();
+    this.hidePredictionBox();
     this.hideIron();
     this.hideIceCube();
     this.clearAllAnimations();

@@ -89,8 +89,8 @@ export class HeatingCoolingBarSimulation {
     let barWidth = 200;
     let barHeight = 18;
     let barX = 140;
-    let barY = 80;
-    let barYSpacing = 70;
+    let barY = 90;
+    let barYSpacing = 80;
     let textX = 40;
 
     // create the three bars
@@ -168,7 +168,7 @@ export class HeatingCoolingBarSimulation {
     if (this.isGuessingEnabled()) {
 
       for (let bar of this.bars) {
-        bar.hideCheckMark();
+        bar.hidePredictionBox();
 
         if (this.isHeating()) {
           bar.setupHeating();
@@ -279,7 +279,7 @@ export class HeatingCoolingBarSimulation {
    * @param text the text to show in the message
    */
   createBottomMessage(text: string) {
-    this.bottomMessage = this.draw.text(text).move(30, 320);
+    this.bottomMessage = this.draw.text(text).move(30, 340);
   }
 
   /**
