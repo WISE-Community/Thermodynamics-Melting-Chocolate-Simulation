@@ -101,7 +101,8 @@ export class HeatingCoolingBarSimulation {
         barWidth,
         barHeight,
         barX,
-        barY);
+        barY,
+        this.mode);
     this.glassBar = new Bar(this,
         this.draw,
         'glass',
@@ -109,7 +110,8 @@ export class HeatingCoolingBarSimulation {
         barWidth,
         barHeight,
         barX,
-        barY + barYSpacing);
+        barY + barYSpacing,
+        this.mode);
     this.woodBar = new Bar(this,
         this.draw,
         'wood',
@@ -117,7 +119,8 @@ export class HeatingCoolingBarSimulation {
         barWidth,
         barHeight,
         barX,
-        barY + (barYSpacing * 2));
+        barY + (barYSpacing * 2),
+        this.mode);
 
     this.bars = [
       this.metalBar,
@@ -346,7 +349,10 @@ export class HeatingCoolingBarSimulation {
       }
     }
 
-    this.setTopMessage('');
+    this.metalBar.setTimerColor('green');
+    this.glassBar.setTimerColor('red');
+    this.woodBar.setTimerColor('red');
+
     this.controls.disablePlayPauseButton();
   }
 
