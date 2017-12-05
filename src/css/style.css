@@ -51,7 +51,7 @@
 
 #playPauseButton {
   position: absolute;
-  top: 270px;
+  top: 300px;
   left: 140px;
   z-index: 2;
   border-radius: 5px;
@@ -60,7 +60,7 @@
 
 #resetButton {
   position: absolute;
-  top: 270px;
+  top: 300px;
   left: 200px;
   z-index: 2;
   border-radius: 5px;

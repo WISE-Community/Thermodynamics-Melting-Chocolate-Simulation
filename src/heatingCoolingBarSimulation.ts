@@ -89,8 +89,8 @@ export class HeatingCoolingBarSimulation {
     let barWidth = 200;
     let barHeight = 18;
     let barX = 140;
-    let barY = 80;
-    let barYSpacing = 70;
+    let barY = 90;
+    let barYSpacing = 80;
     let textX = 40;
 
     // create the three bars
@@ -101,7 +101,8 @@ export class HeatingCoolingBarSimulation {
         barWidth,
         barHeight,
         barX,
-        barY);
+        barY,
+        this.mode);
     this.glassBar = new Bar(this,
         this.draw,
         'glass',
@@ -109,7 +110,8 @@ export class HeatingCoolingBarSimulation {
         barWidth,
         barHeight,
         barX,
-        barY + barYSpacing);
+        barY + barYSpacing,
+        this.mode);
     this.woodBar = new Bar(this,
         this.draw,
         'wood',
@@ -117,7 +119,8 @@ export class HeatingCoolingBarSimulation {
         barWidth,
         barHeight,
         barX,
-        barY + (barYSpacing * 2));
+        barY + (barYSpacing * 2),
+        this.mode);
 
     this.bars = [
       this.metalBar,
@@ -137,6 +140,14 @@ export class HeatingCoolingBarSimulation {
 
     // allow the student to click on a bar
     this.enableGuessing();
+
+    /*
+     * If the browser tab loses focus, we will manually set the timers when the
+     * simulation completes otherwise the timers may show erroneous times.
+     */
+    $(window).blur(() => {
+      this.blurOccurred = true;
+    });
   }
 
   /**
@@ -165,7 +176,7 @@ export class HeatingCoolingBarSimulation {
     if (this.isGuessingEnabled()) {
 
       for (let bar of this.bars) {
-        bar.hideCheckMark();
+        bar.hidePredictionBox();
 
         if (this.isHeating()) {
           bar.setupHeating();
@@ -276,7 +287,7 @@ export class HeatingCoolingBarSimulation {
    * @param text the text to show in the message
    */
   createBottomMessage(text: string) {
-    this.bottomMessage = this.draw.text(text).move(30, 320);
+    this.bottomMessage = this.draw.text(text).move(30, 340);
   }
 
   /**
@@ -346,7 +357,21 @@ export class HeatingCoolingBarSimulation {
       }
     }
 
-    this.setTopMessage('');
+    if (this.blurOccurred) {
+      /*
+       * The simulation has lost focus at some point during the simulation so
+       * we will manually set the end timers.
+       */
+      this.metalBar.setTimer(602);
+      this.glassBar.setTimer(782);
+      this.woodBar.setTimer(1142);
+      this.blurOccurred = false;
+    }
+
+    this.metalBar.setTimerColor('green');
+    this.glassBar.setTimerColor('red');
+    this.woodBar.setTimerColor('red');
+
     this.controls.disablePlayPauseButton();
   }
 

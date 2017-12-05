@@ -5,6 +5,9 @@ export class Bar {
   // a reference to the simulation
   heatingCoolingBarSimulation: any;
 
+  // whether this bar is heating or cooling
+  mode: string;
+
   // the svg.js object
   draw: any;
 
@@ -13,9 +16,6 @@ export class Bar {
 
   // the svg.js text object for the material name
   text: any;
-
-  // the checkmark
-  checkMark: any;
 
   // the name of the matieral
   material: string;
@@ -48,9 +48,15 @@ export class Bar {
       width: number,
       height: number,
       x: number,
-      y: number) {
+      y: number,
+      mode: string) {
     this.heatingCoolingBarSimulation = heatingCoolingBarSimulation;
+    this.mode = mode;
     this.draw = draw;
+
+    this.createPredictionBox(x - 130, y - 40);
+    this.hidePredictionBox();
+
     this.image = this.draw.image(image, width, height).attr({
       'x': x,
       'y': y
@@ -61,17 +67,15 @@ export class Bar {
     // the material label shown to the left of the bar
     this.text = this.draw.text(this.materialLabel).x(x - 100).y(y);
 
-    this.createIron(x - 60, y - 15);
+    this.createIron(x - 60, y - 20);
     this.hideIron();
 
-    this.createAirConditioner(x - 50, y - 20);
-    this.hideAirConditioner();
+    this.createIceCube(x - 50, y - 20);
+    this.hideIceCube();
 
-    this.createCheckMark(x - 130, y - 4);
-    this.hideCheckMark();
-
-    this.createHeatMask(width, height, x, y);
-    this.createCoolMask(width, height, x, y);
+    this.createHeatPolygon(width, height, x, y);
+    this.hideHeatPolygon();
+    this.createHeatMask(x, y);
 
     this.createCups(x + 150, y - 42);
     this.hideCup();
@@ -79,44 +83,49 @@ export class Bar {
     this.createTimer(x + 220, y);
     this.hideTimer();
 
+    this.createInvisibleClickBox(x - 130, y - 40);
+    this.enableClicking();
+
     /*
      * We will store all the animations in this array which will be used for
      * pausing and resuming animations.
      */
     this.allAnimations = [];
-
-    this.image.click(() => {
-      this.clicked();
-    });
-
-    this.text.click(() => {
-      this.clicked();
-    });
-
-    this.heatMaskRect.click(() => {
-      this.clicked();
-    });
-
-    this.enableClicking();
   }
 
   /**
-   * Make the cursor change to a hand when it is over elements that can be
-   * clicked.
+   * Create the invisible box that we will place over all the elements
+   * associated with this bar. This includes the material text label, iron,
+   * ice cube, cup, timer text, etc. The student can click anywhere on this
+   * box to select this bar as their prediction.
+   * @param x the x position in pixels
+   * @param y the y position in pixels
+   */
+  createInvisibleClickBox(x: number, y: number) {
+    this.invisibleClickBox = this.draw.rect(480, 80);
+    this.invisibleClickBox.move(x, y);
+    this.invisibleClickBox.attr('fill-opacity', 0);
+    this.invisibleClickBox.attr( { cursor: 'pointer' } );
+
+    this.invisibleClickBox.click(() => {
+      this.clicked();
+    });
+
+    this.invisibleClickBox.front();
+  }
+
+  /**
+   * Make the cursor change to a hand when it is over the invisible click box.
    */
   enableClicking() {
-    this.image.attr( { cursor: 'pointer' } );
-    this.text.attr( { cursor: 'pointer' } );
-    this.heatMaskRect.attr( { cursor: 'pointer' } );
+    this.invisibleClickBox.attr( { cursor: 'pointer' } );
   }
 
   /**
    * Make the cursor not change to a hand.
    */
   disableClicking() {
-    this.image.attr( { cursor: null } );
-    this.text.attr( { cursor: null } );
-    this.heatMaskRect.attr( { cursor: null } );
+    this.invisibleClickBox.attr( { cursor: null } );
   }
 
   /**
@@ -159,29 +168,28 @@ export class Bar {
   }
 
   /**
-   * Create the air conditioner on and off images.
+   * Reset the iron position.
+   */
+  resetIronPosition() {
+    this.iron.x(this.originalIronPosition);
+  }
+
+  /**
+   * Create the ice cube image.
    * @param x the x position in pixels
    * @param y the y position in pixels
    */
-  createAirConditioner(x: number, y: number) {
-    this.airConditionerOn = this.draw.image('./images/airConditionerOn.png', 50, 50).move(x, y);
-    this.airConditionerOff = this.draw.image('./images/airConditionerOff.png', 50, 50).move(x, y);
+  createIceCube(x: number, y: number) {
+    this.originalIceCubePosition = x;
+    this.iceCube = this.draw.image('./images/iceCube.png', 50, 50).move(x, y);
   }
 
-  hideAirConditioner() {
-    this.airConditionerOn.hide();
-    this.airConditionerOff.hide();
+  hideIceCube() {
+    this.iceCube.hide();
   }
 
-  showAirConditioner() {
-    this.airConditionerOn.hide();
-    this.airConditionerOff.show();
-  }
-
-  turnOnAirConditioner() {
-    this.airConditionerOff.hide();
-    this.airConditionerOn.show();
-    this.coolDownBar();
+  showIceCube() {
+    this.iceCube.show();
   }
 
   /**
@@ -208,20 +216,40 @@ export class Bar {
   }
 
   /**
-   * Create the check mark.
-   * @param x the x position of the check mark in pixels
-   * @param y the y posision of the check mark in pixels
+   * Create the box that surrounds the student's prediction. This also contains
+   * the "My Prediction" text at the upper left of the box.
+   * @param x the x position of the box from the upper left
+   * @param y the y position of the box from the upper left
    */
-  createCheckMark(x: number, y: number) {
-    this.checkMark = this.draw.image('./images/ic_check_black_24px.svg', 24, 24).move(x, y);
+  createPredictionBox(x: number, y: number) {
+    this.predictionBox = this.draw.rect(480, 80);
+    this.predictionBox.move(x, y);
+    this.predictionBox.attr('fill-opacity', 0);
+    this.predictionBox.stroke({ width: 1 });
+
+    this.predictionText = this.draw.text('My Prediction');
+    this.predictionText.font({ size: 10 });
+    this.predictionText.move(x + 22, y + 5);
   }
 
-  hideCheckMark() {
-    this.checkMark.hide();
+  hidePredictionBox() {
+    this.predictionBox.hide();
+    this.predictionText.hide();
   }
 
-  showCheckMark() {
-    this.checkMark.show();
+  showPredictionBox() {
+    this.predictionBox.show();
+    this.predictionText.show();
+  }
+
+  /**
+   * Get the timer text that we will display to the student.
+   * @param time the number of minutes
+   * @return a string that will display how much time has passed
+   * example "5 minutes"
+   */
+  getTimerText(time: number) {
+    return time + ' minutes';
   }
 
   /**
@@ -230,7 +258,7 @@ export class Bar {
    * @param y the y position of the timer
    */
   createTimer(x: number, y: number) {
-    this.timerText = this.draw.text(this.timer + ' seconds').move(x, y);
+    this.timerText = this.draw.text(this.getTimerText(this.timer)).move(x, y);
   }
 
   hideTimer() {
@@ -247,8 +275,18 @@ export class Bar {
   updateTimer() {
     if (this.getState() == 'playing') {
       this.timer += 1;
-      this.timerText.text(this.timer + ' seconds');
+      let minutes = Math.floor(this.timer / 60);
+      this.timerText.text(this.getTimerText(minutes));
     }
+  }
+
+  /**
+   * Manually set the timer.
+   * @param seconds the time
+   */
+  setTimer(seconds: number) {
+    let minutes = Math.floor(seconds / 60);
+    this.timerText.text(this.getTimerText(minutes));
   }
 
   /**
@@ -256,7 +294,22 @@ export class Bar {
    */
   resetTimer() {
     this.timer = 0;
-    this.timerText.text(this.timer + ' seconds');
+    this.timerText.text(this.getTimerText(this.timer));
+  }
+
+  /**
+   * Set the color of the timer text.
+   * @param color A string containing the color name or hex color.
+   */
+  setTimerColor(color) {
+    this.timerText.fill(color);
+  }
+
+  /**
+   * Set the timer color back to its original value of black.
+   */
+  resetTimerColor() {
+    this.timerText.fill('black');
   }
 
   /**
@@ -265,44 +318,67 @@ export class Bar {
   clicked() {
     if (this.heatingCoolingBarSimulation.isGuessingEnabled()) {
       this.heatingCoolingBarSimulation.barClicked(this.material);
-      this.showCheckMark();
+      this.showPredictionBox();
     }
   }
 
   /**
-   * Create the heat mask that we will show when the simulation starts running.
-   * @param width the width of the heat mask in pixels
-   * @param height the height of the heat mask in pixels
-   * @param x the x position of the heat mask in pixels
-   * @param y the y position of the heat mask in pixels
-   */
-  createHeatMask(width: number, height: number, x: number, y: number) {
-    this.heatMask = this.draw.polygon('130,122 130,100 150,90 525,90 525,114 515,122').fill('white');
-    this.heatMask.width(width - 2).height(height - 1);
-    this.heatMask.x(x).y(y);
-    this.heatMaskRect = this.draw.rect(0, 35).attr({
-      'x': x,
-      'y': y
-    }).opacity(.3).fill('red');
-    this.heatMaskRect.maskWith(this.heatMask);
-  }
-
-  /**
-   * Create the cool mask that we will show when the simulation starts running.
+   * Create the polygon that represents the heat on the bar.
    * @param width the width of the cool mask in pixels
    * @param height the height of the cool mask in pixels
    * @param x the x position of the cool mask in pixels
    * @param y the y position of the cool mask in pixels
    */
-  createCoolMask(width: number, height: number, x: number, y: number) {
-    this.coolMask = this.draw.polygon('130,122 130,100 150,90 525,90 525,114 515,122').fill('white');
-    this.coolMask.width(width - 2).height(height - 1);
-    this.coolMask.x(x).y(y);
-    this.coolMaskRect = this.draw.rect(0, 35).attr({
+  createHeatPolygon(width: number, height: number, x: number, y: number) {
+    this.heatPolygon = this.draw.polygon('130,122 130,100 150,90 525,90 525,114 515,122');
+    this.heatPolygon.width(width - 2).height(height - 1);
+    this.heatPolygon.x(x).y(y);
+    this.heatPolygon.fill('red');
+  }
+
+  /**
+   * Show the heat on the bar.
+   */
+  showHeatPolygon() {
+    this.heatPolygon.show();
+  }
+
+  /**
+   * Hide the heat on the bar.
+   */
+  hideHeatPolygon() {
+    this.heatPolygon.hide();
+  }
+
+  /**
+   * Create the mask on the heat polygon that we will use to animate the heat
+   * entering or leaving the bar.
+   */
+  createHeatMask(x: number, y: number) {
+    this.heatMaskOriginalX = x;
+    this.heatMaskOriginalHeatingWidth = 0;
+    this.heatMaskOriginalCoolingWidth = 200;
+    this.heatMask = this.draw.rect(this.heatMaskOriginalHeatingWidth, 35).attr({
       'x': x,
       'y': y
-    }).opacity(.3).fill('blue');
-    this.coolMaskRect.maskWith(this.coolMask);
+    }).fill('red');
+    this.heatPolygon.maskWith(this.heatMask);
+  }
+
+  /**
+   * Reset the heat mask back to its original position and width for heating.
+   */
+  setupHeatMaskForHeating() {
+    this.heatMask.attr({ x: this.heatMaskOriginalX });
+    this.heatMask.attr({ width: this.heatMaskOriginalHeatingWidth });
+  }
+
+  /**
+   * Reset the heat mask back to its original position and width for cooling.
+   */
+  setupHeatMaskForCooling() {
+    this.heatMask.attr({ x: this.heatMaskOriginalX });
+    this.heatMask.attr({ width: this.heatMaskOriginalCoolingWidth });
   }
 
   /**
@@ -318,6 +394,9 @@ export class Bar {
     this.coldCup.opacity(1);
     this.hotCup.show();
     this.hotCup.opacity(1);
+    this.invisibleClickBox.front();
+    this.showHeatPolygon();
+    this.setupHeatMaskForHeating();
   }
 
   /**
@@ -327,20 +406,15 @@ export class Bar {
    * clicks the Play button.
    */
   setupCooling() {
-    this.showAirConditioner();
+    this.showIceCube();
     this.hotCup.front();
     this.hotCup.show();
     this.hotCup.opacity(1);
     this.coldCup.show();
     this.coldCup.opacity(1);
-    this.heatMaskRect.attr('width', 200);
-  }
-
-  /**
-   * Reset the iron position.
-   */
-  resetIronPosition() {
-    this.iron.x(this.originalIronPosition);
+    this.invisibleClickBox.front();
+    this.showHeatPolygon();
+    this.setupHeatMaskForCooling();
   }
 
   /**
@@ -383,7 +457,7 @@ export class Bar {
     }
 
     // show the heat mask on the bar
-    this.barHeatAnimation = this.heatMaskRect.animate(multiplier * 3000 + 3000).attr({
+    this.barHeatAnimation = this.heatMask.animate(multiplier * 3000 + 3000).attr({
       'width': 200
     }).after(() => { this.heatUpCup(); }).duringAll((pos) => {
       // update the timer that is shown to the student
@@ -409,16 +483,22 @@ export class Bar {
     this.addAnimation(this.coldCupAnimation);
   }
 
-  hideHeat() {
-    this.heatMaskRect.hide();
+  /**
+   * Move the ice cube so that it touches and begins cooling the bar.
+   */
+  moveIceCubeToBar() {
+    this.iceCubeAnimation = this.iceCube.animate()
+        .x(this.originalIronPosition + 18).after(() => {
+      this.coolDownBar();
+    });
+    this.addAnimation(this.iceCubeAnimation);
   }
 
-  resetHeat() {
-    this.heatMaskRect.attr({ 'width': 0 });
-  }
-
-  resetCool() {
-    this.coolMaskRect.attr({ 'width': 0 });
+  /**
+   * Reset the ice cube to its original position.
+   */
+  resetIceCubePosition() {
+    this.iceCube.x(this.originalIceCubePosition);
   }
 
   /**
@@ -436,8 +516,8 @@ export class Bar {
     }
 
     // show the cool mask on the bar
-    this.barCoolAnimation = this.coolMaskRect.animate(multiplier * 3000 + 3000).attr({
-      'width': 200
+    this.barCoolAnimation = this.heatMask.animate(multiplier * 3000 + 3000).attr({
+      'x': 340
     }).after(() => { this.coolDownCup(); }).duringAll((pos) => {
       // update the timer that is shown to the student
       this.updateTimer();
@@ -485,7 +565,7 @@ export class Bar {
       if (mode == 'heating') {
         this.moveIronToBar();
       } else if (mode == 'cooling') {
-        this.turnOnAirConditioner();
+        this.moveIceCubeToBar();
       }
     }
   }
@@ -534,15 +614,16 @@ export class Bar {
    */
   reset() {
     this.stop();
-    this.resetHeat();
-    this.resetCool();
     this.resetCup();
     this.resetIronPosition();
+    this.resetIceCubePosition();
     this.resetTimer();
+    this.resetTimerColor();
     this.hideTimer();
-    this.hideCheckMark();
+    this.hideHeatPolygon();
+    this.hidePredictionBox();
     this.hideIron();
-    this.hideAirConditioner();
+    this.hideIceCube();
     this.clearAllAnimations();
     this.enableClicking();
     this.setState('initialized');
