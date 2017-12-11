@@ -66,3 +66,12 @@
   border-radius: 5px;
   outline: none;
 }
+
+#buttonOverlay {
+  position: absolute;
+  top: 300px;
+  left: 140px;
+  z-index: 3;
+  width: 100px;
+  height: 40px;
+}

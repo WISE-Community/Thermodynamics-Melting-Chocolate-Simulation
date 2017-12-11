@@ -228,8 +228,8 @@ export class Bar {
     this.predictionBox.stroke({ width: 1 });
 
     this.predictionText = this.draw.text('My Prediction');
-    this.predictionText.font({ size: 10 });
-    this.predictionText.move(x + 22, y + 5);
+    this.predictionText.font({ size: 13 });
+    this.predictionText.move(x + 10, y + 6);
   }
 
   hidePredictionBox() {
@@ -274,7 +274,7 @@ export class Bar {
    */
   updateTimer() {
     if (this.getState() == 'playing') {
-      this.timer += 1;
+      this.timer += 2;
       let minutes = Math.floor(this.timer / 60);
       this.timerText.text(this.getTimerText(minutes));
     }
@@ -457,7 +457,7 @@ export class Bar {
     }
 
     // show the heat mask on the bar
-    this.barHeatAnimation = this.heatMask.animate(multiplier * 3000 + 3000).attr({
+    this.barHeatAnimation = this.heatMask.animate(multiplier * 2000 + 500).attr({
       'width': 200
     }).after(() => { this.heatUpCup(); }).duringAll((pos) => {
       // update the timer that is shown to the student
@@ -471,7 +471,7 @@ export class Bar {
    */
   heatUpCup() {
     // slowly hide the cold cup which will reveal the hot cup behind it
-    this.coldCupAnimation = this.coldCup.animate(4000).opacity(0).after(() => {
+    this.coldCupAnimation = this.coldCup.animate(1000).opacity(0).after(() => {
       this.setState('completed');
       // tell the simulation that this bar is completed
       this.heatingCoolingBarSimulation.barAnimationCompleted(this.material);
@@ -516,7 +516,7 @@ export class Bar {
     }
 
     // show the cool mask on the bar
-    this.barCoolAnimation = this.heatMask.animate(multiplier * 3000 + 3000).attr({
+    this.barCoolAnimation = this.heatMask.animate(multiplier * 2000 + 500).attr({
       'x': 340
     }).after(() => { this.coolDownCup(); }).duringAll((pos) => {
       // update the timer that is shown to the student
@@ -530,7 +530,7 @@ export class Bar {
    */
   coolDownCup() {
     // slowly hide the hot cup which will reveal the cold cup behind it
-    this.hotCupAnimation = this.hotCup.animate(4000).opacity(0).after(() => {
+    this.hotCupAnimation = this.hotCup.animate(1000).opacity(0).after(() => {
       this.setState('completed');
       // tell the simulation that this bar is completed
       this.heatingCoolingBarSimulation.barAnimationCompleted(this.material);

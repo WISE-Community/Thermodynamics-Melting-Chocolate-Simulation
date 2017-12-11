@@ -175,6 +175,8 @@ export class HeatingCoolingBarSimulation {
   barClicked(material: string) {
     if (this.isGuessingEnabled()) {
 
+      this.setTopMessageColor('black');
+
       for (let bar of this.bars) {
         bar.hidePredictionBox();
 
@@ -224,6 +226,8 @@ export class HeatingCoolingBarSimulation {
     this.disableGuessing();
     this.setTopMessage('');
     for (let bar of this.bars) {
+      bar.resetTimer();
+      bar.setTimerColor('black');
       bar.play(this.mode);
     }
     this.setState('playing');
@@ -282,20 +286,28 @@ export class HeatingCoolingBarSimulation {
   }
 
   /**
+   * Set the message at the top.
+   * @param text the text to show in the message
+   */
+  setTopMessage(text: string) {
+    this.topMessage.text(text);
+  }
+
+  /**
+   * Set the color of the message at the top.
+   * @param text the color of the text which can be a color name or hex string
+   */
+  setTopMessageColor(color: string) {
+    this.topMessage.fill(color);
+  }
+
+  /**
    * Create the message at the bottom that displays the results at the end of
    * the simulation.
    * @param text the text to show in the message
    */
   createBottomMessage(text: string) {
     this.bottomMessage = this.draw.text(text).move(30, 340);
-  }
-
-  /**
-   * Set the message at the top.
-   * @param text the text to show in the message
-   */
-  setTopMessage(text: string) {
-    this.topMessage.text(text);
   }
 
   /**
@@ -362,9 +374,9 @@ export class HeatingCoolingBarSimulation {
        * The simulation has lost focus at some point during the simulation so
        * we will manually set the end timers.
        */
-      this.metalBar.setTimer(602);
-      this.glassBar.setTimer(782);
-      this.woodBar.setTimer(1142);
+      this.metalBar.setTimer(420); // 7 minutes
+      this.glassBar.setTimer(660); // 11 minutes
+      this.woodBar.setTimer(1140); // 19 minutes
       this.blurOccurred = false;
     }
 
@@ -393,5 +405,15 @@ export class HeatingCoolingBarSimulation {
 
   isCooling() {
     return this.mode == 'cooling';
+  }
+
+  /**
+   * The button overlay div was clicked which means the student tried to click
+   * on the play or reset button without choosing a material. We will now
+   * highlight the top message in red to draw their attention to the directions
+   * which tells them they need to choose a material before playing.
+   */
+  buttonOverlayClicked() {
+    this.setTopMessageColor('red');
   }
 }

@@ -26,6 +26,18 @@ export class Controls {
     $('#resetButton').on('click', () => {
       this.heatingCoolingBarSimulation.reset();
     })
+
+    /*
+     * The button overlay is initally placed over the play and reset buttons so
+     * the student can't click on them. Once the student has clicked on a bar
+     * to guess which material is the best, we will hide this overlay so that
+     * they can click on the play button. We need to do this because there is
+     * a minor bug when using font icons inside button elements that make the
+     * buttons clickable even when they are disabled.
+     */
+    $('#buttonOverlay').on('click', () => {
+      this.heatingCoolingBarSimulation.buttonOverlayClicked();
+    });
   }
 
   /**
@@ -70,6 +82,7 @@ export class Controls {
    * Allow the student to click on the reset button.
    */
   enableResetButton() {
+    $('#buttonOverlay').hide();
     $('#resetButton').prop('disabled', null);
     $('#resetButton').css('cursor', 'pointer');
   }
@@ -78,6 +91,7 @@ export class Controls {
    * Disallow the student from clicking the reset button.
    */
   disableResetButton() {
+    $('#buttonOverlay').show();
     $('#resetButton').prop('disabled', true);
     $('#resetButton').css('cursor', null);
   }
