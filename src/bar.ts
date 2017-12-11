@@ -457,7 +457,7 @@ export class Bar {
     }
 
     // show the heat mask on the bar
-    this.barHeatAnimation = this.heatMask.animate(multiplier * 2000).attr({
+    this.barHeatAnimation = this.heatMask.animate(multiplier * 2000 + 500).attr({
       'width': 200
     }).after(() => { this.heatUpCup(); }).duringAll((pos) => {
       // update the timer that is shown to the student
@@ -516,7 +516,7 @@ export class Bar {
     }
 
     // show the cool mask on the bar
-    this.barCoolAnimation = this.heatMask.animate(multiplier * 2000).attr({
+    this.barCoolAnimation = this.heatMask.animate(multiplier * 2000 + 500).attr({
       'x': 340
     }).after(() => { this.coolDownCup(); }).duringAll((pos) => {
       // update the timer that is shown to the student
