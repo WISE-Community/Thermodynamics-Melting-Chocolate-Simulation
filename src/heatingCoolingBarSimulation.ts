@@ -362,9 +362,9 @@ export class HeatingCoolingBarSimulation {
        * The simulation has lost focus at some point during the simulation so
        * we will manually set the end timers.
        */
-      this.metalBar.setTimer(602);
-      this.glassBar.setTimer(782);
-      this.woodBar.setTimer(1142);
+      this.metalBar.setTimer(360);
+      this.glassBar.setTimer(600);
+      this.woodBar.setTimer(1080);
       this.blurOccurred = false;
     }
 
