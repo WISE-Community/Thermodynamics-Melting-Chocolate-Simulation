@@ -96,7 +96,6 @@ export class HeatingCoolingBarSimulation {
       message = this.coolingClickOnTheMaterialMessage;
     }
     this.createTopMessage(message);
-    this.createBottomMessage('');
 
     // allow the student to click on a bar
     this.enableGuessing();
@@ -114,8 +113,8 @@ export class HeatingCoolingBarSimulation {
     const barWidth = 200;
     const barHeight = 18;
     const barX = 140;
-    const barY = 90;
-    let barYSpacing = 0;
+    const barYSpacing = 80;
+    let barY = 90;
     if (this.barVisbility.metal) {
       this.metalBar = new Bar(
         this,
@@ -129,7 +128,7 @@ export class HeatingCoolingBarSimulation {
         this.mode
       );
       this.bars.push(this.metalBar);
-      barYSpacing = 80;
+      barY += barYSpacing;
     }
     if (this.barVisbility.glass) {
       this.glassBar = new Bar(
@@ -140,11 +139,11 @@ export class HeatingCoolingBarSimulation {
         barWidth,
         barHeight,
         barX,
-        barY + barYSpacing,
+        barY,
         this.mode
       );
       this.bars.push(this.glassBar);
-      barYSpacing += 80;
+      barY += barYSpacing;
     }
     if (this.barVisbility.wood) {
       this.woodBar = new Bar(
@@ -155,11 +154,13 @@ export class HeatingCoolingBarSimulation {
         barWidth,
         barHeight,
         barX,
-        barY + barYSpacing,
+        barY,
         this.mode
       );
       this.bars.push(this.woodBar);
     }
+    $('#resetButton, #playPauseButton, #buttonOverlay').css('top', `${barY + 60}px`);
+    this.createBottomMessage('', barY + 100);
   }
 
   /**
@@ -318,8 +319,8 @@ export class HeatingCoolingBarSimulation {
    * the simulation.
    * @param text the text to show in the message
    */
-  createBottomMessage(text: string) {
-    this.bottomMessage = this.draw.text(text).move(30, 340);
+  createBottomMessage(text: string, yPos: number) {
+    this.bottomMessage = this.draw.text(text).move(30, yPos);
   }
 
   /**
