@@ -47,6 +47,6 @@ function bundle() {
     .pipe(gulp.dest('dist'));
 }
 
-gulp.task('default', ['copy-files', 'copy-changes'], bundle);
+gulp.task('default', gulp.series('copy-files', bundle));
 watchedBrowserify.on('update', bundle);
 watchedBrowserify.on('log', gutil.log);
